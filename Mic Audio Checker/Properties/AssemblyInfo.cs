@@ -5,14 +5,15 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Mic Audio Checker")]
-[assembly: AssemblyDescription("Allows you to easily check your microphone's volume level to see if it's too low for people to hear.")]
+[assembly: AssemblyTitle("Mic Volume Freeze")]
+[assembly: AssemblyDescription("Allows you to easily freeze your microphone's volume level")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Mic Audio Checker")]
+[assembly: AssemblyProduct("Mic Volume Freeze")]
 [assembly: AssemblyCopyright("Copyright ©  2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
+
 
 // Setting ComVisible to false makes the types in this assembly not visible
 // to COM components.  If you need to access a type in this assembly from

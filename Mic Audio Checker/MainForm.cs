@@ -1,6 +1,8 @@
-﻿using NAudio.CoreAudioApi;
+﻿using Mic_Audio_Checker.Properties;
+using NAudio.CoreAudioApi;
 using System;
 using System.Drawing;
+using System.Reflection.Emit;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
@@ -11,14 +13,7 @@ namespace Mic_Audio_Checker
 		public MainForm()
 		{
 			InitializeComponent();
-
-			cmbMicVolume.Items.AddRange(volumes);
-			cmbMicVolume.Text = volumes[0];
-			lblMicVolume.Text = cmbMicVolume.Text;
-			cmbMicVolume.TextChanged += (s, e) => lblMicVolume.Text = cmbMicVolume.Text;
-			cmbMicVolume.TextUpdate += (s, e) => lblMicVolume.Text = cmbMicVolume.Text;
-			cmbMicVolume.SelectedIndexChanged += (s, e) => lblMicVolume.Text = cmbMicVolume.Text;
-			cmbMicVolume.SelectedValueChanged += (s, e) => lblMicVolume.Text = cmbMicVolume.Text;
+            trackBar1.Scroll += trackBar1_Scroll;
 
 			Timer t = new Timer { Interval = 1 };
 			Timer t2 = new Timer { Interval = 1500 };
@@ -39,20 +34,7 @@ namespace Mic_Audio_Checker
 					MMDevice mic = devices[0];
 					lblDeviceName.Text = mic.FriendlyName;
 					lblDeviceVolume.Text = (mic.AudioEndpointVolume.MasterVolumeLevelScalar * 100.0f).ToString();
-
-					volumeCheckTip = new ToolTip();
-					if (mic.AudioEndpointVolume.MasterVolumeLevelScalar < 0.80f)
-					{
-						lblVolumeCheck.Text = "r";
-						lblVolumeCheck.ForeColor = Color.Firebrick;
-						volumeCheckTip.SetToolTip(lblVolumeCheck, "Microphone volume is below recommended range.");
-					}
-					else if (mic.AudioEndpointVolume.MasterVolumeLevelScalar >= 0.80f)
-					{
-						lblVolumeCheck.Text = "a";
-						lblVolumeCheck.ForeColor = Color.Green;
-						volumeCheckTip.SetToolTip(lblVolumeCheck, "Microphone volume is at recommended range.");
-					}
+                    label1.Text = String.Format("Минимальное значение: {0}", mic.AudioEndpointVolume.MasterVolumeLevelScalar * 100.0f);
 					lblVolumeCheck.Visible = true;
 				}
 				else
@@ -65,33 +47,33 @@ namespace Mic_Audio_Checker
 			t.Start();
 		}
 
-		private string[] volumes =
-		{
-			"80",
-			"81",
-			"82",
-			"83",
-			"84",
-			"85",
-			"86",
-			"87",
-			"88",
-			"89",
-			"90",
-			"91",
-			"92",
-			"93",
-			"94",
-			"95",
-			"96",
-			"97",
-			"98",
-			"99",
-			"100",
-		};
-		private ToolTip volumeCheckTip;
+        private void label2_Click(object sender, EventArgs e)
+        {
+            this.WindowState = FormWindowState.Minimized;
+            this.ShowInTaskbar = false;
+        }
 
-		[DllImport("user32.dll")]
+        private void MainForm_Resize(object sender, EventArgs e)
+        {
+            //if the form is minimized  
+            //hide it from the task bar  
+            //and show the system tray icon (represented by the NotifyIcon control)  
+            if (this.WindowState == FormWindowState.Minimized)
+            {
+                Hide();
+                notifyIcon1.Visible = true;
+            }
+        }
+
+        private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            Show();
+            this.WindowState = FormWindowState.Normal;
+            this.ShowInTaskbar = true;
+            notifyIcon1.Visible = false;
+        }
+
+        [DllImport("user32.dll")]
 		private static extern bool ReleaseCapture();
 
 		[DllImport("user32.dll")]
@@ -115,12 +97,10 @@ namespace Mic_Audio_Checker
 
 		private void Close_MSEnter(object sender, EventArgs e)
 		{
-			pnlClose.BackColor = Color.FromArgb(45, 45, 45);
 			lblClose.BackColor = Color.FromArgb(45, 45, 45);
 		}
 		private void Close_MSLeave(object sender, EventArgs e)
 		{
-			pnlClose.BackColor = Color.FromArgb(35, 35, 35);
 			lblClose.BackColor = Color.FromArgb(35, 35, 35);
 		}
 
@@ -133,124 +113,76 @@ namespace Mic_Audio_Checker
 			Application.Exit();
 		}
 
-		private void CheckVolume_MSEnter(object sender, EventArgs e)
-		{
-			pnlCheckVolume.BackColor = Color.FromArgb(35, 35, 35);
-			lblCheckVolume.BackColor = Color.FromArgb(35, 35, 35);
-		}
-		private void CheckVolume_MSLeave(object sender, EventArgs e)
-		{
-			pnlCheckVolume.BackColor = Color.FromArgb(25, 25, 25);
-			lblCheckVolume.BackColor = Color.FromArgb(25, 25, 25);
-		}
+        private void trackBar1_Scroll(object sender, EventArgs e)
+        {
+			label1.Text = String.Format("Минимальное значение: {0}", trackBar1.Value);
+        }
 
-		private void CheckVolume_MSClick(object sender, MouseEventArgs e)
-		{
-			int volume = 0;
+        private void label1_Click(object sender, EventArgs e)
+        {
 
-			MMDeviceEnumerator enumerator = new MMDeviceEnumerator();
-			MMDeviceCollection devices = enumerator.EnumerateAudioEndPoints(DataFlow.Capture, DeviceState.Active);
-			if (devices.Count > 0)
-			{
-				MMDevice mic = devices[0];
-				volume = (int)(mic.AudioEndpointVolume.MasterVolumeLevelScalar * 100.0f);
-				lblDeviceVolume.Text = volume.ToString();
-				lblVolumeCheck.Visible = false;
-				if (mic.AudioEndpointVolume.MasterVolumeLevelScalar < 0.80f)
-				{
-					lblVolumeCheck.Text = "r";
-					lblVolumeCheck.ForeColor = Color.Firebrick;
-					volumeCheckTip.SetToolTip(lblVolumeCheck, "Microphone volume is below recommended range.");
-				}
-				else if (mic.AudioEndpointVolume.MasterVolumeLevelScalar >= 0.80f)
-				{
-					lblVolumeCheck.Text = "a";
-					lblVolumeCheck.ForeColor = Color.Green;
-					volumeCheckTip.SetToolTip(lblVolumeCheck, "Microphone volume is at recommended range.");
-				}
-				lblVolumeCheck.Visible = true;
+        }
 
-				if (volume < 80)
-				{
-					DialogResult dialog = MessageBox.Show("There was an issue detected. Your microphone volume is below 80.\n" +
-						"Would you like to increase it to 80? You can change it anytime.", "Problem Found",
-						MessageBoxButtons.YesNo, MessageBoxIcon.Error);
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
 
-					if (dialog == DialogResult.Yes)
-					{
-						Timer t = new Timer { Interval = 1 };
-						Timer t2 = new Timer { Interval = 1500 };
-						t.Tick += (s, ee) =>
-						{
-							lblDeviceVolume.Text = "Changing...";
-							t.Enabled = false;
-							t2.Start();
+            CheckBox checkBox = (CheckBox)sender; // приводим отправителя к элементу типа CheckBox
+            if (checkBox.Checked == true)
+            {
+                int volume = 0;
+
+                MMDeviceEnumerator enumerator = new MMDeviceEnumerator();
+                MMDeviceCollection devices = enumerator.EnumerateAudioEndPoints(DataFlow.Capture, DeviceState.Active);
+                if (devices.Count > 0)
+                {
+                    MMDevice mic = devices[0];
+                    volume = (int)(mic.AudioEndpointVolume.MasterVolumeLevelScalar * 100.0f);
+                    lblDeviceVolume.Text = volume.ToString();
+                    lblVolumeCheck.Visible = false;
+                    if (volume < trackBar1.Value)
+                    {
+                        lblVolumeCheck.Text = "r";
+                        lblVolumeCheck.ForeColor = Color.Firebrick;
+ 
+                    }
+
+                    lblVolumeCheck.Visible = true;
+
+                    Timer t3 = new Timer { Interval = 10 };
+                    
+                    t3.Tick += (ss, eee) =>
+                    {
+						if (checkBox.Checked == false) { t3.Enabled = false; }
+                        volume = (int)(mic.AudioEndpointVolume.MasterVolumeLevelScalar * 100.0f);
+                        if (volume < trackBar1.Value)
+                        {
+							Timer t = new Timer { Interval = 1 };
+                            Timer t2 = new Timer { Interval = 10 };
+                            t.Tick += (s, ee) =>
+								{
+                                    lblDeviceVolume.Text = "Changing...";
+                                    t.Enabled = false;
+                                    t2.Start();
+                                };
+                                t2.Tick += (s, ee) =>
+                                {
+                                    mic.AudioEndpointVolume.MasterVolumeLevelScalar = trackBar1.Value / 100.0f;
+                                    lblDeviceVolume.Text = volume.ToString();
+                                    t2.Enabled = false;
+                   
+                                };
+                                t.Start();
+							}
 						};
-						t2.Tick += (s, ee) =>
-						{
-							mic.AudioEndpointVolume.MasterVolumeLevelScalar = 0.80f;
-							lblDeviceVolume.Text = "80";
-							t2.Enabled = false;
-						};
-						t.Start();
+						t3.Start();
 					}
-				}
-				else if (volume >= 80)
-				{
-					MessageBox.Show("No issues found. Your microphone is in the recommended range of 80-100.", "No Issues",
-						MessageBoxButtons.OK, MessageBoxIcon.Information);
-				}
-			}
-			else
-			{
-				MessageBox.Show("No microphones were detected. Are any plugged in?", "No Microphones Found",
-					MessageBoxButtons.OK, MessageBoxIcon.Error);
-			}
-		}
-
-		private void SetVolume_MSEnter(object sender, EventArgs e)
-		{
-			pnlSetVolume.BackColor = Color.FromArgb(35, 35, 35);
-			lblSetVolume.BackColor = Color.FromArgb(35, 35, 35);
-		}
-		private void SetVolume_MSLeave(object sender, EventArgs e)
-		{
-			pnlSetVolume.BackColor = Color.FromArgb(25, 25, 25);
-			lblSetVolume.BackColor = Color.FromArgb(25, 25, 25);
-		}
-
-		private void SetVolume_MSClick(object sender, MouseEventArgs e)
-		{
-			MMDeviceEnumerator enumerator = new MMDeviceEnumerator();
-			MMDeviceCollection devices = enumerator.EnumerateAudioEndPoints(DataFlow.Capture, DeviceState.Active);
-			if (devices.Count > 0)
-			{
-				int volume = int.Parse(lblMicVolume.Text);
-				float volumef = volume / 100.0f;
-				MMDevice mic = devices[0];
-				Timer t = new Timer { Interval = 1 };
-				Timer t2 = new Timer { Interval = 1500 };
-				t.Tick += (s, ee) =>
-				{
-					lblVolumeCheck.Visible = false;
-					lblDeviceVolume.Text = "Changing...";
-					t.Enabled = false;
-					t2.Start();
-				};
-				t2.Tick += (s, ee) =>
-				{
-					mic.AudioEndpointVolume.MasterVolumeLevelScalar = volumef;
-					lblDeviceVolume.Text = volume.ToString();
-					lblVolumeCheck.Visible = true;
-					t2.Enabled = false;
-				};
-				t.Start();
-			}
-			else
-			{
-				MessageBox.Show("No microphones were detected. Are any plugged in?", "No Microphones Found",
-					MessageBoxButtons.OK, MessageBoxIcon.Error);
-			}
-		}
-	}
+                else
+                {
+                    MessageBox.Show("No microphones were detected. Are any plugged in?", "No Microphones Found",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+    }
 }
+
