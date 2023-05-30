@@ -35,7 +35,6 @@ namespace Mic_Audio_Checker
 					lblDeviceName.Text = mic.FriendlyName;
 					lblDeviceVolume.Text = (mic.AudioEndpointVolume.MasterVolumeLevelScalar * 100.0f).ToString();
                     label1.Text = String.Format("Минимальное значение: {0}", mic.AudioEndpointVolume.MasterVolumeLevelScalar * 100.0f);
-					lblVolumeCheck.Visible = true;
 				}
 				else
 				{
@@ -50,7 +49,7 @@ namespace Mic_Audio_Checker
         private void label2_Click(object sender, EventArgs e)
         {
             this.WindowState = FormWindowState.Minimized;
-            this.ShowInTaskbar = false;
+            //this.ShowInTaskbar = false;
         }
 
         private void MainForm_Resize(object sender, EventArgs e)
@@ -60,8 +59,9 @@ namespace Mic_Audio_Checker
             //and show the system tray icon (represented by the NotifyIcon control)  
             if (this.WindowState == FormWindowState.Minimized)
             {
-                Hide();
                 notifyIcon1.Visible = true;
+                Hide();
+
             }
         }
 
@@ -115,12 +115,7 @@ namespace Mic_Audio_Checker
 
         private void trackBar1_Scroll(object sender, EventArgs e)
         {
-			label1.Text = String.Format("Минимальное значение: {0}", trackBar1.Value);
-        }
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-
+            label1.Text = String.Format("Минимальное значение: {0}", trackBar1.Value);
         }
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
@@ -138,15 +133,6 @@ namespace Mic_Audio_Checker
                     MMDevice mic = devices[0];
                     volume = (int)(mic.AudioEndpointVolume.MasterVolumeLevelScalar * 100.0f);
                     lblDeviceVolume.Text = volume.ToString();
-                    lblVolumeCheck.Visible = false;
-                    if (volume < trackBar1.Value)
-                    {
-                        lblVolumeCheck.Text = "r";
-                        lblVolumeCheck.ForeColor = Color.Firebrick;
- 
-                    }
-
-                    lblVolumeCheck.Visible = true;
 
                     Timer t3 = new Timer { Interval = 10 };
                     
@@ -156,8 +142,8 @@ namespace Mic_Audio_Checker
                         volume = (int)(mic.AudioEndpointVolume.MasterVolumeLevelScalar * 100.0f);
                         if (volume < trackBar1.Value)
                         {
-							Timer t = new Timer { Interval = 1 };
-                            Timer t2 = new Timer { Interval = 10 };
+							Timer t = new Timer { Interval = 5 };
+                            Timer t2 = new Timer { Interval = 20 };
                             t.Tick += (s, ee) =>
 								{
                                     lblDeviceVolume.Text = "Changing...";
