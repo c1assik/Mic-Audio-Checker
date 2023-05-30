@@ -135,12 +135,12 @@ namespace Mic_Audio_Checker
             // lblClose
             // 
             this.lblClose.AutoSize = true;
-            this.lblClose.Font = new System.Drawing.Font("Webdings", 10.5F);
+            this.lblClose.Font = new System.Drawing.Font("Leelawadee UI", 12F, System.Drawing.FontStyle.Bold);
             this.lblClose.Location = new System.Drawing.Point(443, 6);
             this.lblClose.Name = "lblClose";
-            this.lblClose.Size = new System.Drawing.Size(23, 20);
+            this.lblClose.Size = new System.Drawing.Size(19, 21);
             this.lblClose.TabIndex = 9;
-            this.lblClose.Text = "r";
+            this.lblClose.Text = "x";
             this.lblClose.MouseClick += new System.Windows.Forms.MouseEventHandler(this.Close_MSClick);
             this.lblClose.MouseEnter += new System.EventHandler(this.Close_MSEnter);
             this.lblClose.MouseLeave += new System.EventHandler(this.Close_MSLeave);
