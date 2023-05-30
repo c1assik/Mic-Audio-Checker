@@ -10,7 +10,6 @@ This is rework of [sh4d0w4RCH3R415\Mic-Audio-Checker](https://github.com/sh4d0w4
 - The archive with the application can be downloaded in the Release section
 - Just unpack the archive to any location
 
-
     
 ## Screenshots
 
